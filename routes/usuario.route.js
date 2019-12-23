@@ -31,6 +31,41 @@ app.get('/usuario', (req, res) => {
     });
 });
 
+// Buscar usuarios por nombre o email
+app.get('/usuario/buscar/:termino?', (req, res) => {
+  const termino = req.params.termino;
+  const regex = new RegExp(termino, 'i');
+
+  Usuario.find({ estado: true })
+    .or([
+      { nombre: regex },
+      { email: regex }
+    ])
+    .exec((err, usuarios) => {
+      if (err) {
+        return res.status(500).json({
+          ok: false,
+          mensaje: 'Error al obtener resultados',
+          error: err
+        });
+      }
+
+      Usuario.countDocuments({ estado: true })
+        .or([
+          { nombre: regex },
+          { email: regex }
+        ])
+        .exec((err, total) => {
+          res.json({
+            ok: true,
+            termino_busqueda: termino,
+            total_resultados: total,
+            usuarios
+          });
+        });
+    });
+});
+
 // Crear un nuevo usuario
 app.post('/usuario', (req, res) => {
   const body = req.body;
@@ -90,7 +125,7 @@ app.put('/usuario/:id', (req, res) => {
   });
 });
 
-// Desactivar un usuario en la base de datos
+// Desactivar (eliminar) un usuario en la base de datos
 app.delete('/usuario/:id', (req, res) => {
   const id = req.params.id;
 
@@ -107,7 +142,7 @@ app.delete('/usuario/:id', (req, res) => {
       });
     }
 
-    if (!usuario) {
+    if (!usuario || !usuario.estado) {
       return res.status(400).json({
         ok: false,
         error: {
