@@ -3,6 +3,7 @@ const app = express();
 
 const Usuario = require('../models/usuario.model');
 
+// Obtener todos los usuarios de la base de datos
 app.get('/usuario', (req, res) => {
   const limite = req.query.limite || 0;
   const desde = req.query.desde || 0;
@@ -13,7 +14,7 @@ app.get('/usuario', (req, res) => {
     .skip(Number(desde))
     .exec((err, usuarios) => {
       if (err) {
-        return res.status(400).json({
+        return res.status(500).json({
           ok: false,
           mensaje: 'Error al obtener los usuarios',
           error: err
@@ -30,6 +31,7 @@ app.get('/usuario', (req, res) => {
     });
 });
 
+// Crear un nuevo usuario
 app.post('/usuario', (req, res) => {
   const body = req.body;
   const usuario = new Usuario({
@@ -39,14 +41,14 @@ app.post('/usuario', (req, res) => {
 
   usuario.save((err, usuario) => {
     if (err) {
-      return res.status(400).json({
+      return res.status(500).json({
         ok: false,
         mensaje: 'Error al crear nuevo usuario',
         error: err
       });
     }
 
-    res.json({
+    res.status(201).json({
       ok: true,
       mensaje: 'Nuevo usuario creado',
       usuario
@@ -54,6 +56,7 @@ app.post('/usuario', (req, res) => {
   });
 });
 
+// Modificar un usuario existente
 app.put('/usuario/:id', (req, res) => {
   const id = req.params.id;
   const body = req.body;
@@ -63,7 +66,7 @@ app.put('/usuario/:id', (req, res) => {
 
   Usuario.findByIdAndUpdate(id, body, { new: true }, (err, usuario) => {
     if (err) {
-      return res.status(400).json({
+      return res.status(500).json({
         ok: false,
         mensaje: 'Error al modificar usuario',
         error: err
@@ -79,7 +82,7 @@ app.put('/usuario/:id', (req, res) => {
       });
     }
 
-    res.json({
+    res.atus(201).json({
       ok: true,
       mensaje: 'El usuario fue modificado correctamente',
       usuario
@@ -87,6 +90,7 @@ app.put('/usuario/:id', (req, res) => {
   });
 });
 
+// Desactivar un usuario en la base de datos
 app.delete('/usuario/:id', (req, res) => {
   const id = req.params.id;
 
@@ -96,7 +100,7 @@ app.delete('/usuario/:id', (req, res) => {
   // Cambiando el estado a false, para no borrar fisicamente
   Usuario.findByIdAndUpdate(id, { estado: false }, { new: true }, (err, usuario) => {
     if (err) {
-      return res.status(400).json({
+      return res.status(500).json({
         ok: false,
         mensaje: 'Error al eliminar usuario',
         error: err
