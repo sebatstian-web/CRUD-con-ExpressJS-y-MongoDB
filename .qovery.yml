@@ -1,0 +1,11 @@
+---
+application:
+  name: "crud-con-expressjs-y-mongodb"
+  project: "icasshpropiedades"
+  organization: "QoveryCommunity"
+routers:
+- name: "main-crud-con-expressjs-y-mongodb"
+  routes:
+  - application_name: "crud-con-expressjs-y-mongodb"
+    paths:
+    - "/*"
